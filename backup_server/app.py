@@ -6,6 +6,7 @@ import logging
 import time
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
+from random import randrange
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -42,12 +43,15 @@ def make_backup(name) -> None:
     arg_list = arg_string.split()
     print(arg_list)
     try:
+        if randrange(10) == 5:
+            socketio.emit('backup_failed')
+            raise ValueError('Backup failed')
         os.popen(arg_string)
         logging.info("Backup is successful")
         backup_zip = zipfile.ZipFile(zip_file, 'w')
         backup_zip.write(name, compress_type=zipfile.ZIP_DEFLATED)
         size = file_size(zip_file)
-        socketio.emit('backup', {'file_name': zip_file, 'file_size': size, 'date': str(datetime.datetime.now())})
+        socketio.emit('backup_successful', {'file_name': zip_file, 'file_size': size, 'date': str(datetime.datetime.now())})
     except Exception as e:
         logging.exception('Command failed')
 
