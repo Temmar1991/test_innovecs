@@ -1,0 +1,2 @@
+Flask-SocketIO==4.2.1
+APScheduler==3.6.1
