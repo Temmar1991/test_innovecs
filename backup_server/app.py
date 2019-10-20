@@ -43,7 +43,7 @@ def make_backup(name) -> None:
     arg_list = arg_string.split()
     print(arg_list)
     try:
-        if randrange(10) == 5:
+        if randrange(8) == 5:
             socketio.emit('backup_failed')
             raise ValueError('Backup failed')
         os.popen(arg_string)
