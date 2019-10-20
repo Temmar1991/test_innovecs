@@ -13,6 +13,18 @@ db = create_engine(database_string)
 base = declarative_base()
 
 
+def check_socket(host, port):
+    import socket
+    from contextlib import closing
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        if sock.connect_ex((host, port)) == 0:
+            print("Mysql is running")
+            return True
+        else:
+            print("Mysql is not running...Waiting...")
+            return False
+
+
 def connect():
     try:
         session = sessionmaker(bind=db)
@@ -50,7 +62,10 @@ def insert_to_table():
 
 
 if __name__ == '__main__':
-    scheduler()
+    while True:
+        while check_socket("localhost", 3306):
+            time.sleep(3)
+            scheduler()
 
 
 

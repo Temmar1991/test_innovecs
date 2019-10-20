@@ -37,7 +37,20 @@ def file_size(file_path):
         return convert_bytes(file_info.st_size)
 
 
-def make_backup(name) -> None:
+
+def check_socket(host, port):
+    import socket
+    from contextlib import closing
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        if sock.connect_ex((host, port)) == 0:
+            print("Port is open")
+            return True
+        else:
+            print("Port is not open")
+            return False
+
+
+def make_backukup(name) -> None:
     arg_string = f"mysqldump -h {os.environ.get('HOST')} -u {os.environ.get('DATABASE_USER')} -p{os.environ.get('DATABASE_PASS')} {os.environ.get('DATABASE')} > {name}"
     print(arg_string)
     arg_list = arg_string.split()
