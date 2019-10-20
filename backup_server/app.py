@@ -3,14 +3,13 @@ import os
 import zipfile
 from flask_socketio import SocketIO
 import logging
-import time
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 from random import randrange
 
 app = Flask(__name__)
 socketio = SocketIO(app)
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.WARN)
 
 cwd = os.getcwd()
 file_name = os.path.join(cwd, os.environ.get("DUMP_FILE"))
@@ -37,7 +36,6 @@ def file_size(file_path):
         return convert_bytes(file_info.st_size)
 
 
-
 def check_socket(host, port):
     import socket
     from contextlib import closing
@@ -50,19 +48,16 @@ def check_socket(host, port):
             return False
 
 
-def make_backukup(name) -> None:
-    arg_string = f"mysqldump -h {os.environ.get('HOST')} -u {os.environ.get('DATABASE_USER')} -p{os.environ.get('DATABASE_PASS')} {os.environ.get('DATABASE')} > {name}"
-    print(arg_string)
-    arg_list = arg_string.split()
-    print(arg_list)
+def make_backup(name) -> None:
+    arg_string = f"mysqldump -h {os.environ.get('HOST')} -u {os.environ.get('DATABASE_USER')} -p{os.environ.get('DATABASE_PASS')} {os.environ.get('DATABASE')} > {name} 2>&1 /dev/mull"
     try:
         if randrange(8) == 5:
             socketio.emit('backup_failed')
             raise ValueError('Backup failed')
         os.popen(arg_string)
-        logging.info("Backup is successful")
         backup_zip = zipfile.ZipFile(zip_file, 'w')
         backup_zip.write(name, compress_type=zipfile.ZIP_DEFLATED)
+        logging.info("Backup is successful")
         size = file_size(zip_file)
         socketio.emit('backup_successful', {'file_name': zip_file, 'file_size': size, 'date': str(datetime.datetime.now())})
     except Exception as e:
@@ -88,5 +83,5 @@ sched.start()
 
 
 if __name__ == '__main__':
-    socketio.run(app, port=9000)
+    socketio.run(app, port=9000, host="0.0.0.0", use_evalex=False, debug=False)
 

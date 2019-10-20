@@ -8,7 +8,7 @@ def backup_event(message):
 
 
 def failed_backup(mes):
-    print(f"Backup failed {mes}")
+    print(f"Backup failed")
 
 
 sock.on('backup_successful', backup_event)

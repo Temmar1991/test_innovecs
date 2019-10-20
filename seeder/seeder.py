@@ -63,6 +63,7 @@ def insert_to_table():
 
 if __name__ == '__main__':
     while True:
+        time.sleep(5)
         while check_socket("localhost", 3306):
             time.sleep(3)
             scheduler()
